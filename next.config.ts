@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   async headers() {
+    const isProd = process.env.NODE_ENV === 'production';
     return [
       {
         source: '/(.*)',
@@ -14,7 +15,7 @@ const nextConfig: NextConfig = {
           { key: 'X-XSS-Protection',            value: '1; mode=block' },
           { key: 'Referrer-Policy',             value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy',          value: 'camera=(), microphone=(), geolocation=()' },
-          {
+          ...(isProd ? [{
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
@@ -24,7 +25,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: https://firebasestorage.googleapis.com https://images.unsplash.com https://placehold.co",
               "connect-src 'self' https://*.googleapis.com https://firestore.googleapis.com",
             ].join('; '),
-          },
+          }] : []),
         ],
       },
     ];
