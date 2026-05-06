@@ -44,7 +44,8 @@ Return ONLY a valid JSON object matching this exact shape:
     });
 
     const block = response.content[0];
-    const text = block.type === 'text' ? block.text : '';
+    const raw = block.type === 'text' ? block.text : '';
+    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
     return JSON.parse(text) as QuoteResult;
   }
 }
