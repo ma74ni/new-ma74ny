@@ -15,6 +15,7 @@ export class AnthropicQuoterService implements IQuoterService {
 
 Your job is to analyze a project description and return a structured estimate in valid JSON only.
 No markdown, no explanation, just the JSON object.
+All text fields (projectType, scope items, disclaimer) must be written in Spanish.
 
 Pricing reference (USD):
 ${JSON.stringify(PRICING_RANGES, null, 2)}

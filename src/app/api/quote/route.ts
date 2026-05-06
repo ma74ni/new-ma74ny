@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     const service = createQuoterService();
     const result = await service.generateQuote(parsed.data);
-    void saveQuoteLog(parsed.data.description, result.projectType).catch(() => null);
+    await saveQuoteLog(parsed.data.description, result.projectType).catch(() => null);
     return NextResponse.json(result, { status: 200 });
   } catch {
     return NextResponse.json(
