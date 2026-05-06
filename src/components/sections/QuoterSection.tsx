@@ -10,7 +10,7 @@ const MAX_CHARS = 1000;
 
 export function QuoterSection() {
   const [description, setDescription] = useState('');
-  const { state, result, error, generateQuote, reset } = useQuoter();
+  const { state, result, error, cooldownSecs, generateQuote, reset } = useQuoter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +18,10 @@ export function QuoterSection() {
       void generateQuote(description.trim());
     }
   };
+
+  const mins = Math.floor(cooldownSecs / 60);
+  const secs = cooldownSecs % 60;
+  const cooldownLabel = `${mins}:${String(secs).padStart(2, '0')}`;
 
   const whatsappMsg = result
     ? encodeURIComponent(
@@ -68,9 +72,15 @@ export function QuoterSection() {
               </p>
             )}
 
+            {cooldownSecs > 0 && (
+              <p className="text-sm text-zinc-500 text-center">
+                Podrás generar otra cotización en{' '}
+                <span className="text-cyan-400 font-mono">{cooldownLabel}</span>
+              </p>
+            )}
             <Button
               type="submit"
-              disabled={description.trim().length < 20}
+              disabled={description.trim().length < 20 || cooldownSecs > 0}
               className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-full py-3 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-cyan-500"
             >
               <Sparkles className="mr-2 h-4 w-4" />

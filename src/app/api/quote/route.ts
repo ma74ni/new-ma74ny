@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-real-ip') ??
     'anonymous';
 
-  const rateLimitResult = checkRateLimit(ip);
-  if (!rateLimitResult.allowed) {
+  const { allowed } = await checkRateLimit(ip);
+  if (!allowed) {
     return NextResponse.json(
       { code: 'RATE_LIMITED', message: 'Too many requests. Please try again in an hour.' },
       { status: 429, headers: { 'Retry-After': '3600' } },

@@ -1,20 +1,25 @@
-const requests = new Map<string, { count: number; resetAt: number }>();
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS = 3;
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
-export function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
-  const now = Date.now();
-  const record = requests.get(ip);
+let ratelimit: Ratelimit | null = null;
 
-  if (!record || now > record.resetAt) {
-    requests.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return { allowed: true, remaining: MAX_REQUESTS - 1 };
+function getLimiter(): Ratelimit | null {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return null;
   }
-
-  if (record.count >= MAX_REQUESTS) {
-    return { allowed: false, remaining: 0 };
+  if (!ratelimit) {
+    ratelimit = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(3, '1 h'),
+      prefix: 'quoter',
+    });
   }
+  return ratelimit;
+}
 
-  record.count++;
-  return { allowed: true, remaining: MAX_REQUESTS - record.count };
+export async function checkRateLimit(ip: string): Promise<{ allowed: boolean }> {
+  const limiter = getLimiter();
+  if (!limiter) return { allowed: true };
+  const { success } = await limiter.limit(ip);
+  return { allowed: success };
 }
