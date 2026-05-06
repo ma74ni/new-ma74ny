@@ -22,15 +22,6 @@ export function useQuoter() {
   const [cooldownSecs, setCooldownSecs] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const remaining = getRemainingMs();
-    if (remaining > 0) {
-      setCooldownSecs(Math.ceil(remaining / 1000));
-      startCountdown();
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
-
   function startCountdown() {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
@@ -43,6 +34,15 @@ export function useQuoter() {
       }
     }, 1000);
   }
+
+  useEffect(() => {
+    const remaining = getRemainingMs();
+    if (remaining > 0) {
+      setCooldownSecs(Math.ceil(remaining / 1000));
+      startCountdown();
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
 
   async function generateQuote(description: string) {
     if (getRemainingMs() > 0) return;
