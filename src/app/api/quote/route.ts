@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { QuoteRequestSchema } from '@/lib/validators';
 import { createQuoterService } from '@/services/QuoterServiceFactory';
 import { checkRateLimit } from '@/lib/rate-limiter';
+import { saveQuoteLog } from '@/services/quote-logs.service';
 
 export async function POST(req: NextRequest) {
   const ip =
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     const service = createQuoterService();
     const result = await service.generateQuote(parsed.data);
+    void saveQuoteLog(parsed.data.description, result.projectType).catch(() => null);
     return NextResponse.json(result, { status: 200 });
   } catch {
     return NextResponse.json(
