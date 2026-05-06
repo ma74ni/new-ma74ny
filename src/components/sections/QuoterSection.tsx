@@ -25,7 +25,12 @@ export function QuoterSection() {
 
   const whatsappMsg = result
     ? encodeURIComponent(
-        `Hola Diego, acabo de usar el cotizador y me interesa hablar sobre mi proyecto: ${result.projectType}`,
+        `Hola Diego! Usé el cotizador de tu web y me interesa hablar sobre mi proyecto.\n\n` +
+        `📋 *Tipo:* ${result.projectType}\n` +
+        `💰 *Presupuesto estimado:* $${result.priceRange.min}–$${result.priceRange.max} USD\n` +
+        `⏱ *Tiempo estimado:* ${result.estimatedWeeks.min}–${result.estimatedWeeks.max} semanas\n\n` +
+        `*Mi descripción:*\n${description}\n\n` +
+        `¿Podemos coordinar una llamada?`,
       )
     : '';
   const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''}?text=${whatsappMsg}`;
