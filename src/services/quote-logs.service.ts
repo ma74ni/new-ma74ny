@@ -1,10 +1,13 @@
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export async function saveQuoteLog(description: string, projectType: string): Promise<void> {
-  await addDoc(collection(db, 'quote_logs'), {
+  const entry = JSON.stringify({
     description,
     projectType,
-    createdAt: serverTimestamp(),
+    createdAt: new Date().toISOString(),
   });
+  await redis.lpush('quote_logs', entry);
+  await redis.ltrim('quote_logs', 0, 499); // keep last 500 entries
 }
